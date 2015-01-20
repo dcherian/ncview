@@ -1,4 +1,4 @@
-/*	define DEBUG_SCIPLOT */
+/* define DEBUG_SCIPLOT */
 /*-----------------------------------------------------------------------------
 ** SciPlot.c	A generalized plotting widget
 **
@@ -2190,6 +2190,16 @@ Boolean firstx,firsty;
 				if (w->plot.Min.y>0.0) w->plot.Min.y=0.0;
 				if (w->plot.Max.y<0.0) w->plot.Max.y=0.0;
 			}
+		else
+			{
+			if (!w->plot.YAutoScale) {
+				if( w->plot.UserMin.y < 0 ) 
+					w->plot.UserMin.y = 1.e-4 * w->plot.UserMax.y;
+				w->plot.Min.y=w->plot.UserMin.y;
+				w->plot.Max.y=w->plot.UserMax.y;
+printf( "sciplot: just set y range to %d %d\n", w->plot.Min.y, w->plot.Max.y ); 
+				}
+			}
 		}
 	}
 	else {
@@ -3351,6 +3361,10 @@ SciPlotWidget w;
 	if (!XtIsSciPlot(wi)) return;
 
 	w=(SciPlotWidget)wi;
+
+printf( "SciPlotSetYUserScale: entering with new min=%f max=%f      orig min=%f max=%f\n",
+	min, max, w->plot.UserMin.y, w->plot.UserMax.y );
+
 	if (min<max) {
 		w->plot.YAutoScale=False;
 		w->plot.UserMin.y=(real)min;

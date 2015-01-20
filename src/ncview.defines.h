@@ -1,6 +1,6 @@
 /*
  * Ncview by David W. Pierce.  A visual netCDF file viewer.
- * Copyright (C) 1993 through 2011 by David W. Pierce
+ * Copyright (C) 1993 through 2013 by David W. Pierce
  *
  * This program  is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as 
@@ -31,8 +31,8 @@
 #include <udunits2.h>
 #endif
 
-#define PROGRAM_ID		"Ncview 2.1.2 David W. Pierce  24 Oct 2012"
-#define PROGRAM_VERSION_STRING	"2.1.2"
+#define PROGRAM_ID		"Ncview 2.1.3 David W. Pierce  1 Sept 2013"
+#define PROGRAM_VERSION_STRING	"2.1.3"
 #define APP_RES_VERSION 	1.93
 
 #ifndef TRUE
@@ -537,6 +537,8 @@ typedef struct {
 	float	frame_delay;	/* Normalied to be between 0.0 and 1.0 */
 
 	int	enable_group_sel;	/* TRUE if we have some vars in groups, so interface must incl. grp selection */
+
+	int	missval_r, missval_g, missval_b;	/* 0-255 values of R, G, B for missing data */
 
 	OverlayOptions *overlay;
 } Options;

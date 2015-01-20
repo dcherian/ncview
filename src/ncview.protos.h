@@ -30,7 +30,7 @@ Stringlist *parse_options           ( int argc,  char *argv[] );
 void 	initialize_file_interface   ( Stringlist *input_files );
 void	initialize_display_interface( void );
 void	initialize_colormaps	    ( void );
-void	init_cmap_from_file	    ( char *dir_name, char *file_name );
+void	init_cmap_from_file	    ( char *dir_name, char *file_name, int n_suffix );
 void	process_user_input          ( void );
 void	quit_app		    ( void );
 void	create_default_colormap     ( void );
@@ -306,6 +306,8 @@ void    view_set_range       ( void );
 void    view_set_scan_dims   ( void );
 void 	view_data_edit       ( void );
 void 	view_information     ( void );
+long 	view_current_nt      ( void );
+
 
 /******************************************************************************
  * in overlay.c

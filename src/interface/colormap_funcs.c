@@ -505,9 +505,9 @@ void x_create_colormap( char *name, unsigned char r[256], unsigned char g[256], 
         for( i=0; i<options.n_extra_colors; i++ ) {
                 color        = cmaplist->color_list+i;
                 color->flags = DoRed | DoGreen | DoBlue;
-                color->red   = 256*(unsigned int)255;
-                color->green = 256*(unsigned int)255;
-                color->blue  = 256*(unsigned int)255;
+                color->red   = 256*(unsigned int)options.missval_r;
+                color->green = 256*(unsigned int)options.missval_g;
+                color->blue  = 256*(unsigned int)options.missval_b;
                 }
         color        = cmaplist->color_list+1;
         color->flags = DoRed | DoGreen | DoBlue;

@@ -235,7 +235,7 @@ void udu_fmt_time( char *temp_string, size_t temp_string_len, double new_dimval,
 		strncpy( last_units, dim->units, 1023 );
 		}
 
-	if( utCalendar2_cal( new_dimval, dataunits, &year, &month, &day, &hour, 
+	if( utCalendar2_cal( new_dimval, dim->units, &year, &month, &day, &hour, 
 				&minute, &second, dim->calendar ) != 0 ) {
 		fprintf( stderr, "internal error: udu_fmt_time can't convert to calendar value!\n");
 		fprintf( stderr, "units: >%s<\n", dim->units );

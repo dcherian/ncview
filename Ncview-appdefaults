@@ -55,6 +55,7 @@ Ncview*background:	SteelBlue
 Ncview*PlotXY_canvas*background: LightSteelBlue
 !
 Ncview*font:			-*-helvetica-*-r-*-*-14-*-*-*-*-*-*-*
+Ncview*axisFont:			10
 !
 Ncview*ccontour*borderWidth: 	0
 !

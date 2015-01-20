@@ -1,6 +1,6 @@
 /*
  * Ncview by David W. Pierce.  A visual netCDF file viewer.
- * Copyright (C) 1993 through 2010 David W. Pierce
+ * Copyright (C) 1993 through 2013 David W. Pierce
  *
  * This program  is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, Version 3, as 
@@ -75,6 +75,7 @@ Stringlist *read_in_state;
 static void init_cmaps_from_data();
 static void init_cmap_from_data( char *colormap_name, int *data );
 static int get_cmaps_from_dir( char *dir_name );
+static int ncview_cmap_suffix( char *s, int *n_suffix );
 
 /***********************************************************************************************/
 	int
@@ -96,7 +97,7 @@ main( int argc, char **argv )
 		found_state_file = FALSE;
 
 	in_parse_args               ( &argc, argv );
-	input_files = parse_options ( argc,  argv );
+	input_files = parse_options ( argc,  argv );	/* This parses ALL the non-X11 command line options, not just the input files */
 	determine_file_type         ( input_files );
 
 	options.window_title = input_files->string;
@@ -271,6 +272,15 @@ parse_options( int argc, char *argv[] )
 				i++;
 				}
 
+			else if( strncmp( argv[i], "-missvalrgb", 11 ) == 0 ) {
+				sscanf( argv[i+1], "%d", &(options.missval_r) );
+				i++;
+				sscanf( argv[i+1], "%d", &(options.missval_g) );
+				i++;
+				sscanf( argv[i+1], "%d", &(options.missval_b) );
+				i++;
+				}
+
 			else if( strncmp( argv[i], "-nc", 3 ) == 0 ) {
 				sscanf( argv[i+1], "%d", &(options.n_colors) );
 				if( options.n_colors > 255 ) {
@@ -376,6 +386,11 @@ initialize_misc()
 
 	options.maxsize_pct	 = 75;	/* maximum size of a window, in percent of screen, before switching to scrollbars */
 
+	/* Set default color to use for missing data */
+	options.missval_r 	= 255;
+	options.missval_g 	= 255;
+	options.missval_b 	= 255;
+
 	framestore.frame = NULL;
 	framestore.valid = FALSE;
 
@@ -422,12 +437,44 @@ initialize_colormaps()
 }
 
 /***********************************************************************************************/
+/* Returns 0 if the passed char string "s" has a valid ncview cmap file suffix, and 1 otherwise.
+ * If a 0 is returned, then n_suffix is also set to the suffix length, including the period.
+ */
+	int
+ncview_cmap_suffix( char *s, int *n_suffix )
+{
+	int		nc;
+
+	if( s == NULL ) 
+		return( 1 );
+
+	nc = strlen( s );
+	if( nc < 5 ) 
+		return( 1 );
+
+	if( strncasecmp( (s+nc-4), ".ncm", 4 ) == 0 ) {
+		*n_suffix = 4;
+		return( 0 );
+		}
+
+	if( nc < 7 ) 
+		return( 1 );
+
+	if( strncasecmp( (s+nc-6), ".ncmap", 6 ) == 0 ) {
+		*n_suffix = 6;
+		return( 0 );
+		}
+
+	return( 1 );
+}
+
+/***********************************************************************************************/
 	int
 get_cmaps_from_dir( char *dir_name )
 {
 	DIR		*ncdir = NULL;
 	struct dirent	*dir_entry;
-	int		n_colormaps = 0;
+	int		n_colormaps = 0, n_suffix;
 
 	if( options.debug ) 
 		fprintf( stderr, "Getting colormaps from dir >%s<\n", dir_name );
@@ -440,10 +487,8 @@ get_cmaps_from_dir( char *dir_name )
 		/* Additional allowed filenames as per suggestion by 
 		 * Arlindo da Silva for his Windows port
 		 */
-		if( (strstr( dir_entry->d_name, ".NCM"   ) != NULL) ||
-		    (strstr( dir_entry->d_name, ".ncm"   ) != NULL) ||
-		    (strstr( dir_entry->d_name, ".ncmap" ) != NULL) ) {
-			init_cmap_from_file( dir_name, dir_entry->d_name );
+		if( ncview_cmap_suffix( dir_entry->d_name, &n_suffix ) == 0) {
+			init_cmap_from_file( dir_name, dir_entry->d_name, n_suffix );
 			n_colormaps++;
 			}
 		dir_entry = readdir( ncdir );
@@ -508,7 +553,7 @@ init_cmap_from_data( char *colormap_name, int *data )
 
 /***********************************************************************************************/
 	void
-init_cmap_from_file( char *dir_name, char *file_name )
+init_cmap_from_file( char *dir_name, char *file_name, int n_suffix )
 {
 	char 	*colormap_name;
 	FILE	*cmap_file;
@@ -520,10 +565,10 @@ init_cmap_from_file( char *dir_name, char *file_name )
 	if( options.debug ) 
 		fprintf( stderr, "    ... initting cmap >%s<\n", file_name );
 
-	/* Colormap name is the file name without the '.ncmap' extension */
-	colormap_name = (char *)malloc( strlen(file_name)-5 );
-	strncpy( colormap_name, file_name, strlen(file_name)-6 );
-	*(colormap_name + strlen(file_name)-6) = '\0';
+	/* Colormap name is the file name without the '.ncmap' or '.ncm' extension */
+	colormap_name = (char *)malloc( strlen(file_name)-(n_suffix-1) );
+	strncpy( colormap_name, file_name, strlen(file_name)-n_suffix );
+	*(colormap_name + strlen(file_name)-n_suffix) = '\0';
 
 	/* Make sure this colormap name isn't already known */
 	if( x_seen_colormap_name( colormap_name )) {
@@ -547,8 +592,8 @@ init_cmap_from_file( char *dir_name, char *file_name )
 		if( fgets( line, 128, cmap_file ) == NULL ) {
 			fprintf( stderr, "ncview: init_cmap_from_file: file %s finished ",
 					long_file_name );
-			fprintf( stderr, "on line %d, but should have 256 lines\n", i+1 );
-			exit( -1 );
+			fprintf( stderr, "on line %d, but should have 256 lines: not a valid ncview cmap file\n", i+1 );
+			return;
 			}
 
 		nentries = sscanf( line, "%d %d %d", &r_entry, &g_entry, &b_entry );
@@ -752,6 +797,7 @@ fprintf( stderr, "	-listsel_max NN: max number of vars allowed before switching 
 fprintf( stderr, "	-no_color_ndims: do NOT color the var selection buttons by their dimensionality\n" );
 fprintf( stderr, "	-no_auto_overlay: do NOT automatically put on continental overlays\n" );
 fprintf( stderr, "	-autoscale: scale color map of EACH frame to range of that frame. Note: MUCH SLOWER!\n" );
+fprintf( stderr, "	-missvalrgb RRR GGG BBB: specifies 3 integers (range: 0 to 255) to use for missing value color\n" );
 fprintf( stderr, "	-maxsize: specifies max size of window before scrollbars are added. Either a single\n" );
 fprintf( stderr, "              integer between 30 and 100 giving percentage, or two integers separated by a\n" );
 fprintf( stderr, "              comma giving width and height. Ex: -maxsize 75  or -maxsize 800,600\n" );
@@ -770,7 +816,7 @@ print_disclaimer()
 {
 fprintf( stderr, "%s\n", PROGRAM_ID );
 fprintf( stderr, "http://meteora.ucsd.edu:80/~pierce/ncview_home_page.html\n" );
-fprintf( stderr, "Copyright (C) 1993 through 2011, David W. Pierce\n" );
+fprintf( stderr, "Copyright (C) 1993 through 2013, David W. Pierce\n" );
 fprintf( stderr, "Ncview comes with ABSOLUTELY NO WARRANTY; for details type `ncview -w'.\n" );
 fprintf( stderr, "This is free software licensed under the Gnu General Public License version 3; type `ncview -c' for redistribution details.\n\n" );
 }
@@ -779,7 +825,7 @@ fprintf( stderr, "This is free software licensed under the Gnu General Public Li
 	void
 print_no_warranty()
 {
-printf( "\n The program `ncview' is Copyright (C) 1993 through 2010 David W. Pierce, and\n" );
+printf( "\n The program `ncview' is Copyright (C) 1993 through 2013 David W. Pierce, and\n" );
 printf( "is subject to the terms and conditions of the Gnu General Public License,\n" );
 printf( "Version 3. For information on copying, modifying, or distributing `ncview',\n" );
 printf( "type `ncview -c'.\n" );
@@ -819,7 +865,7 @@ printf( "POSSIBILITY OF SUCH DAMAGES.\n" );
 	void 
 print_copying()
 {
-printf( "  The program `ncview' is Copyright (C) 1993 through 2010, David W. Pierce, and \n" );
+printf( "  The program `ncview' is Copyright (C) 1993 through 2013, David W. Pierce, and \n" );
 printf( "is subject to the terms and conditions of the Gnu General Public License,\n" );
 printf( "Version 3.  Ncview comes with NO WARRANTY; for further information, type\n" );
 printf( "`ncview -w'.\n" );

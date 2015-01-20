@@ -397,6 +397,28 @@ set_scan_buttons( View *local_view )
 	in_set_label( LABEL_SCALAR_DIMS, scalar_coord_str );
 }
 
+/**************************************************************************************
+ * Report current size of scan azis
+ */
+	long 
+view_current_nt()
+{
+	size_t		size;
+
+	if( view == NULL ) 
+		return( 0 );
+
+	if( view->variable == NULL )
+		return( 0 );
+
+	if( view->variable->size == NULL )
+		return( 0 );
+
+	size = *(view->variable->size  + view->scan_axis_id);
+
+	return( size );
+}
+
 /********************************************************************************
  * Change the view we currently have on the data; i.e., scan along
  * the scan-axis.  'interpretation' can be either FRAMES or PERCENT, and

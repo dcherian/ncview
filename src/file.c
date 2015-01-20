@@ -435,11 +435,11 @@ void fi_dim_value_convert( double *dimval, FDBlist *file, NCVar *var, NCDim *d )
 	/* Convert the dim value to a date using the units given 
 	 * in the file that this dim value came from
 	 */
-	err = utCalendar2_cal( *dimval, file->ut_unit_ptr, 
+	err = utCalendar2_cal( *dimval, file->recdim_units, 
 		&year0, &month0, &day0, &hour0, &min0, &sec0, d->calendar );
 	if( err == 0 ) {
 		err = utInvCalendar2_cal( year0, month0, day0, hour0, min0, sec0, 
-			var->first_file->ut_unit_ptr, &converted_dimval,
+			var->first_file->recdim_units, &converted_dimval,
 			d->calendar );
 		if( err == 0 ) 
 			*dimval = converted_dimval;

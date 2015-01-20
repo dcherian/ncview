@@ -107,7 +107,12 @@ calcalcs_cal *ccs_init_calendar( const char *calname )
 
 	error_message[0] = '\0';
 
-	if( strncasecmp( calname, "standard", 8 ) == 0 ) {
+	if( (strncasecmp( calname, "standard",     8) == 0) 
+	 && (strncasecmp( calname, "standard_y0", 11) != 0) ) {	 /* NOT a year0 calendar! */
+
+		/* This is a "regular" Standard calendar, which does not include "year 0".
+		 * See also calendar standard_y0, which does include a year 0, below
+		 */
 
 		if( ! have_initted_country_codes )
 			ccs_init_country_database();
@@ -134,7 +139,15 @@ calcalcs_cal *ccs_init_calendar( const char *calname )
 
 		retval->mixed = 1;
 		retval->early_cal = ccs_init_calendar( "proleptic_julian" );
+		if( retval->early_cal == NULL ) {
+			fprintf( stderr, "Error, initialization of early calendar (proleptic_julian_y0) for standard_y0 calendar failed!\n" );
+			exit(-1);
+			}
 		retval->late_cal  = ccs_init_calendar( "proleptic_gregorian" );
+		if( retval->late_cal == NULL ) {
+			fprintf( stderr, "Error, initialization of late calendar (proleptic_gregorian_y0) for standard_y0 calendar failed!\n" );
+			exit(-1);
+			}
 
 		/* Following are FIRST DAY the "later" calendar should be used */
 		if( use_specified_xition_date == 1 ) {
@@ -148,6 +161,42 @@ calcalcs_cal *ccs_init_calendar( const char *calname )
 			retval->month_x   = 10;
 			retval->day_x     = 15;
 			}
+
+		/* Set the last date the earlier cal was used, and the transition day's Julian date */
+		if( set_xition_extra_info( retval ) != 0 ) {
+			fprintf( stderr, "calcalcs_init_cal: Error trying to initialize calendar \"%s\": %s. Returning NULL\n",
+				calname, error_message );
+			return(NULL);
+			}
+		}
+
+	else if( strncasecmp( calname, "standard_y0", 11) == 0) {	 
+
+		retval = (calcalcs_cal *)malloc( sizeof(calcalcs_cal) );
+		if( retval == NULL ) {
+			fprintf( stderr, "Error, cannot allocate space for the calcalcs calendar. Returning NULL\n" );
+			return( NULL );
+			}
+		retval->sig  = CCS_VALID_SIG;
+		retval->name = (char *)malloc( sizeof(char) * (strlen(calname)+1) );
+		strcpy( retval->name, calname );
+
+		retval->mixed = 1;
+		retval->early_cal = ccs_init_calendar( "proleptic_julian_y0" );
+		if( retval->early_cal == NULL ) {
+			fprintf( stderr, "Error, initialization of early calendar (proleptic_julian_y0) for standard_y0 calendar failed!\n" );
+			exit(-1);
+			}
+		retval->late_cal  = ccs_init_calendar( "proleptic_gregorian_y0" );
+		if( retval->late_cal == NULL ) {
+			fprintf( stderr, "Error, initialization of late calendar (proleptic_gregorian_y0) for standard_y0 calendar failed!\n" );
+			exit(-1);
+			}
+
+		/* Following are FIRST DAY the "later" calendar should be used */
+		retval->year_x    = 1582;
+		retval->month_x   = 10;
+		retval->day_x     = 15;
 
 		/* Set the last date the earlier cal was used, and the transition day's Julian date */
 		if( set_xition_extra_info( retval ) != 0 ) {
@@ -270,7 +319,10 @@ calcalcs_cal *ccs_init_calendar( const char *calname )
 		}
 
 	else
-		return( NULL );
+		{
+		fprintf( stderr, "Error, ccs_init_calendar called with unknown calendar name: %s\n", calname );
+		exit(-1);
+		}
 
 	return( retval );
 }
@@ -392,7 +444,7 @@ int ccs_jday2date( calcalcs_cal *calendar, int jday, int *year, int *month, int 
  * ccs_date2jday: given a date, return the (true) Julian day number
  *
  * Note that "Julian day number" is not the day number of the year, but rather the
- * day number starting on Jan 1st 4713 BC (in the proleptic Julian calendar) and 
+ * day number starting with zero on Jan 1st 4713 BC (in the proleptic Julian calendar) and 
  * counting consecutively.
  *
  * Returns 0 on success, <0 on error and fills string error_message
@@ -1553,8 +1605,8 @@ static int set_xition_extra_info( calcalcs_cal *cal )
 	 */ 
 	ierr = ccs_jday2date( cal->early_cal, (cal->jday_x-1), &(cal->year_px), &(cal->month_px), &(cal->day_px));
 	if( ierr != 0 ) {
-		sprintf( error_message, "Failed to turn the day before the mixed calendar transition day into a date! %s\n",
-			ccs_err_str(ierr) );
+		sprintf( error_message, "Failed to turn the day BEFORE the mixed calendar transition day of %04d-%02d-%02d into a date while using calendar %s! %s\n",
+			cal->year_x, cal->month_x, cal->day_x, cal->early_cal->name, ccs_err_str(ierr) );
 		return(ierr);
 		}
 

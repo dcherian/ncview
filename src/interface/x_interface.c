@@ -1305,7 +1305,7 @@ void x_init_widgets_varsel_menu_inner( Widget parent, long *varlist, int nv, cha
 /*****************************************************************************************************/
 void x_init_widgets_varsel_menu_grp( Widget menu_box, Widget *varsel_menu_widget_list ) 
 {
-	Stringlist *uniq_groups, *sl_cursor;
+	Stringlist *uniq_groups, *group_cursor;
 	int	discard_groupname, nvars, ngrps, *my_grp_num, i, igrp, nv_in_grp;		/* Applies to each var on the global "variables" list; counting starts at zero */
 	long	*varlist;
 	NCVar	*var_cursor;
@@ -1327,23 +1327,32 @@ void x_init_widgets_varsel_menu_grp( Widget menu_box, Widget *varsel_menu_widget
 	var_cursor = variables;
 	for( i=0; i<nvars; i++ ) {
 		my_grp_num[i] = -1;
-		sl_cursor = uniq_groups;
+		group_cursor = uniq_groups;
 		for( igrp=0; igrp<ngrps; igrp++ ) {
 
-			/* Test for a var in the root group (in which case it has no slashes) matching
+			/* Force a var in the root group (in which case it has no slashes) to match
 			 * the group named "/"
 			 */
-			if( (count_nslashes( var_cursor->name )==0) && (strncmp( "/", sl_cursor->string, 1)==0)) {
+			if( (count_nslashes( var_cursor->name )==0) && (strncmp( "/", group_cursor->string, 1)==0)) {
+printf( "root check: putting var %s in gruop %s\n", var_cursor->name, group_cursor->string );
 				my_grp_num[i] = igrp;
 				break;
 				}
 			/* Var has at least one slash in its name */
-			else if( strncmp( var_cursor->name, sl_cursor->string, strlen(sl_cursor->string) ) == 0 ) {
-				my_grp_num[i] = igrp;
-				break;
+			else if( strncmp( var_cursor->name, group_cursor->string, strlen(group_cursor->string) ) == 0 ) {
+printf( "non root check: putting var %s in gruop %s\n", var_cursor->name, group_cursor->string );
+				/* At this point a var with a group name that STARTS with another gruop name,
+				 * but is longer, will match. So we check to see if the var's name actually
+				 * ends with a slash where it should, if this is the right gruop. If it does
+				 * end with a slash, then it's the right group name
+				 */
+				if( var_cursor->name[ strlen(group_cursor->string) ] == '/' ) {
+					my_grp_num[i] = igrp;
+					break;
+					}
 				}
 
-			sl_cursor = sl_cursor->next;
+			group_cursor = group_cursor->next;
 			}
 		if( my_grp_num[i] == -1 ) {
 			fprintf( stderr, "x_init_widgets_varsel_menu_grp: Error, did not find group for var named >%s< in the following list of unique groups:\n",
@@ -1358,7 +1367,7 @@ void x_init_widgets_varsel_menu_grp( Widget menu_box, Widget *varsel_menu_widget
 	/* Now go through the groups, and make a menu selection button for
 	 * each group that generates a pop-up menu of all vars in that group
 	 */
-	sl_cursor = uniq_groups;
+	group_cursor = uniq_groups;
 	for( igrp=0; igrp<ngrps; igrp++ ) {
 		/* The way the routine x_init_widgets_varsel_menu_inner is set up, it needs
 		 * an array of longs that hold the entry number on the global "variables"
@@ -1373,13 +1382,13 @@ void x_init_widgets_varsel_menu_grp( Widget menu_box, Widget *varsel_menu_widget
 			}
 		var_menu_grp = (Widget *)malloc( sizeof(Widget) );
 		discard_groupname = 1;
-		snprintf( widget_name, 2040, "%s (%d vars)", sl_cursor->string, nv_in_grp );
+		snprintf( widget_name, 2040, "%s (%d vars)", group_cursor->string, nv_in_grp );
 		if( options.debug ) printf( "x_init_widgets_varsel_menu_grp: making menu for group selection named >%s< with %d vars\n", 
 			widget_name, nv_in_grp );
 		x_init_widgets_varsel_menu_inner( menu_box, varlist, nv_in_grp, widget_name, var_menu_grp,
 			varsel_menu_widget_list, discard_groupname );
 
-		sl_cursor = sl_cursor->next;
+		group_cursor = group_cursor->next;
 		}
 
 	free( varlist );

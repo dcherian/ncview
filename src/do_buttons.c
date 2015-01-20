@@ -113,10 +113,21 @@ do_quit( int modifier )
 	void
 do_backwards( int modifier )
 {
+	size_t	size;
+
 	in_timer_clear();
 
-	if( modifier == MOD_2 )
-		change_view( -10, PERCENT );
+	if( modifier == MOD_2 ) {
+		size = view_current_nt();
+		if( size < 500 ) 
+			change_view( -10, PERCENT );
+		else if( size < 5000 ) 
+			change_view(  -5, PERCENT );
+		else if( size < 50000 ) 
+			change_view(  -2, PERCENT );
+		else
+			change_view(  -1, PERCENT );
+		}
 	else
 		change_view( -1, FRAMES );
 
@@ -135,11 +146,22 @@ do_pause( int modifier )
 	void
 do_forward( int modifier )
 {
+	size_t	size;
+
 	cur_button = BUTTON_PAUSE;
 	in_timer_clear();
 
-	if( modifier == MOD_2 )
-		change_view( 10, PERCENT );
+	if( modifier == MOD_2 ) {
+		size = view_current_nt();
+		if( size < 500 ) 
+			change_view( 10, PERCENT );
+		else if( size < 5000 ) 
+			change_view(  5, PERCENT );
+		else if( size < 50000 ) 
+			change_view(  2, PERCENT );
+		else
+			change_view(  1, PERCENT );
+		}
 	else
 		change_view( 1, FRAMES );
 }
