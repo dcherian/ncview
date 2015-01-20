@@ -1,0 +1,9 @@
+src/*.o
+stamp-h1
+config.h
+config.log
+config.status
+Makefile
+src/ncview
+src/geteuid
+src/.deps/
