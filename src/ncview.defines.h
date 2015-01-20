@@ -31,8 +31,8 @@
 #include <udunits2.h>
 #endif
 
-#define PROGRAM_ID		"Ncview 2.1.3 David W. Pierce  1 Sept 2013"
-#define PROGRAM_VERSION_STRING	"2.1.3"
+#define PROGRAM_ID		"Ncview 2.1.4 David W. Pierce  13 Nov 2014"
+#define PROGRAM_VERSION_STRING	"2.1.4"
 #define APP_RES_VERSION 	1.93
 
 #ifndef TRUE

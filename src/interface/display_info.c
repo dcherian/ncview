@@ -122,7 +122,7 @@ display_close_callback(Widget widget, XtPointer client_data, XtPointer call_data
 	int	i;
 
 	i = 0;
-	while( (display_close_button_widget[i] != widget) && (i < MAX_DISPLAY_POPUPS) )
+	while( (i < MAX_DISPLAY_POPUPS) && (display_close_button_widget[i] != widget))
 		i++;
 	if( i == MAX_DISPLAY_POPUPS ) {
 		fprintf( stderr, "Internal error!  Can't find widget to close display popup!\n" );

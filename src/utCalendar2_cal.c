@@ -691,7 +691,7 @@ static int inferred_origin_year( const char *s )
 /* printf( "loc that string 'since' starts: %d\n", loc_since_start ); */
 
 	ifnbss = loc_since_start + 5;	/* ifnbss = "i first non blank since since" */
-	while( isblank( *(s+ifnbss) ) && (*(s+ifnbss) != '\0') && (ifnbss < sl))
+	while( (ifnbss < sl) && isblank( *(s+ifnbss) ) && (*(s+ifnbss) != '\0'))
 		ifnbss++;
 
 /* printf( "i first non blank since since:%d\n", ifnbss ); */

@@ -424,7 +424,7 @@ plot_XY_locked_callback(Widget widget, XtPointer client_data, XtPointer call_dat
 	int	i, j;
 
 	i = 0;
-	while( (plot_locked_button_widget[i] != widget) && (i < MAX_PLOT_XY) )
+	while((i < MAX_PLOT_XY) && (plot_locked_button_widget[i] != widget))
 		i++;
 	if( i == MAX_PLOT_XY ) {
 		fprintf( stderr, "Internal error!  Can't find widget to change lock on!\n" );
