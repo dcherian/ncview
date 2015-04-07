@@ -1,6 +1,6 @@
 /*
  * Ncview by David W. Pierce.  A visual netCDF file viewer.
- * Copyright (C) 1993 through 2014 David W. Pierce
+ * Copyright (C) 1993 through 2015 David W. Pierce
  *
  * This program  is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, Version 3, as 
@@ -249,6 +249,9 @@ parse_options( int argc, char *argv[] )
 
 			else if( strncmp( argv[i], "-shrink_mode", 12) == 0 )
 				options.shrink_method = SHRINK_METHOD_MODE;
+
+			else if( strncmp( argv[i], "-repl", 5) == 0 )
+				options.blowup = BLOWUP_REPLICATE;
 
 			else if( strncmp( argv[i], "-c", 2 ) == 0 ) {
 				print_copying();
@@ -781,6 +784,7 @@ fprintf( stderr, "		(\"-minmax slow\"), or all entries (\"-minmax all\").\n" );
 fprintf( stderr, "	-frames: Dump out PNG images (to make a movie, for instance)\n" );
 fprintf( stderr, "	-nc: 	Specify number of colors to use.\n" );
 fprintf( stderr, "	-no1d: 	Do NOT allow 1-D variables to be displayed.\n" );
+fprintf( stderr, "	-repl: 	Set default blowup type to replicate rathern than bilinear.\n" );
 fprintf( stderr, "	-calendar: Specify time calendar to use, overriding value in file. Known: noleap standard gregorian 365_day 360_day.\n" );
 fprintf( stderr, "	-private: Use a private colormap.\n" );
 fprintf( stderr, "	-debug: Print lots of debugging info.\n" );
@@ -816,7 +820,7 @@ print_disclaimer()
 {
 fprintf( stderr, "%s\n", PROGRAM_ID );
 fprintf( stderr, "http://meteora.ucsd.edu:80/~pierce/ncview_home_page.html\n" );
-fprintf( stderr, "Copyright (C) 1993 through 2014, David W. Pierce\n" );
+fprintf( stderr, "Copyright (C) 1993 through 2015, David W. Pierce\n" );
 fprintf( stderr, "Ncview comes with ABSOLUTELY NO WARRANTY; for details type `ncview -w'.\n" );
 fprintf( stderr, "This is free software licensed under the Gnu General Public License version 3; type `ncview -c' for redistribution details.\n\n" );
 }
@@ -825,7 +829,7 @@ fprintf( stderr, "This is free software licensed under the Gnu General Public Li
 	void
 print_no_warranty()
 {
-printf( "\n The program `ncview' is Copyright (C) 1993 through 2014 David W. Pierce, and\n" );
+printf( "\n The program `ncview' is Copyright (C) 1993 through 2015 David W. Pierce, and\n" );
 printf( "is subject to the terms and conditions of the Gnu General Public License,\n" );
 printf( "Version 3. For information on copying, modifying, or distributing `ncview',\n" );
 printf( "type `ncview -c'.\n" );
@@ -865,7 +869,7 @@ printf( "POSSIBILITY OF SUCH DAMAGES.\n" );
 	void 
 print_copying()
 {
-printf( "  The program `ncview' is Copyright (C) 1993 through 2014, David W. Pierce, and \n" );
+printf( "  The program `ncview' is Copyright (C) 1993 through 2015, David W. Pierce, and \n" );
 printf( "is subject to the terms and conditions of the Gnu General Public License,\n" );
 printf( "Version 3.  Ncview comes with NO WARRANTY; for further information, type\n" );
 printf( "`ncview -w'.\n" );

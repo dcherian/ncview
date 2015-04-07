@@ -269,17 +269,18 @@ fi
 # for the Intel icc compiler, but also that the icc compiler sets $ac_compiler_gnu
 # to "yes".  Go figure.
 #----------------------------------------------------------------------------------
+echo "ac_computer_gnu: $ac_compiler_gnu"
 if test x$ac_compiler_gnu = xyes; then
 	RPATH_FLAGS=""
 	for word in $UDUNITS2_LDFLAGS $NETCDF_LDFLAGS; do
 		if test `expr $word : -L/` -eq 3; then
-			RPDIR=`expr substr $word 3 999`;
+			#RPDIR=`expr substr $word 3 999`;
+			RPDIR=${word:2}
 			RPATH_FLAGS="$RPATH_FLAGS -Wl,-rpath,$RPDIR"
 		fi
 	done
 	AC_SUBST(RPATH_FLAGS)
 fi
-
 
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
