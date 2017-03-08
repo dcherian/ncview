@@ -486,6 +486,10 @@ change_view( int delta, int interpretation )
 		place = 0L;
 		if( options.beep_on_restart )
 			beep();
+		if( options.stop_on_restart ) {
+			do_pause( MOD_1 );
+			return(0);
+			}
 		}
 		
 	/* Have we decremented below the minimum allowed value? */

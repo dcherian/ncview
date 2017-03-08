@@ -2685,12 +2685,20 @@ void x_clear_dim_buttons()
 		return;
 
 	i=0;
-	while( (w = *(xdimlist_widget + i++)) != NULL )
-		XtDestroyWidget( w );
+	while( (w = *(xdimlist_widget + i)) != NULL )
+		i++;
+	while( i>0 ) {
+		i--;
+		XtDestroyWidget( *(xdimlist_widget + i ));
+		}
 
 	i=0;
-	while( (w = *(ydimlist_widget + i++)) != NULL )
-		XtDestroyWidget( w );
+	while( (w = *(ydimlist_widget + i)) != NULL )
+		i++;
+	while( i>0 ) {
+		i--;
+		XtDestroyWidget( *(ydimlist_widget + i ));
+		}
 }
 
 /*************************************************************************************************/
@@ -3337,9 +3345,18 @@ void x_clear_dim_info()
 	if( diminfo_row_widget == NULL )
 		return;
 
+	/* Many thanks to Marco Atzeri for fixing a bug that was here. Upshot is that
+	 * the widgets appear to be linked, so safer to delete from the tail back to
+	 * the head rather than from the head to the tail.
+	 */
 	i=0;
-	while( (w = *(diminfo_row_widget + i++)) != NULL )
-		XtDestroyWidget( w );
+	while( (w = *(diminfo_row_widget + i)) != NULL )
+		i++;
+
+	while( i>0 ) {
+		i--;
+		XtDestroyWidget( *(diminfo_row_widget + i ));
+		}
 }
 
 /*************************************************************************************************/

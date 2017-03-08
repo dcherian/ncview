@@ -1554,6 +1554,7 @@ void netcdf_fill_value( int file_id, char *var_name, float *v, NetCDFOptions *au
 {
 	int	err, varid, foundit, gid;
 	char	var_name_ng[MAX_NC_NAME];
+	nc_type	vartype;
 
 	if( options.debug ) 
 		fprintf( stderr, "Checking %s for a missing value...\n",
@@ -1619,10 +1620,22 @@ void netcdf_fill_value( int file_id, char *var_name, float *v, NetCDFOptions *au
 		return;
 		}
 
-	/* default behavior, if no specified "_FillValue" attribute */
-	*v = FILL_FLOAT;
+	/* default behavior, if no specified "_FillValue" attribute.
+	 * Thanks to Heiko Klein <Heiko.Klein@met.no> for the suggestion & code.
+	*/
+	if ( nc_inq_vartype( file_id, varid, &vartype) == NC_NOERR ) {
+		switch (vartype) {
+			case NC_BYTE:   *v = (float) NC_FILL_BYTE; break;
+			case NC_SHORT:  *v = (float) NC_FILL_SHORT; break;
+			case NC_INT:    *v = (float) NC_FILL_INT; break;
+			case NC_FLOAT:  *v = NC_FILL_FLOAT; break;
+			case NC_DOUBLE: *v = (float) NC_FILL_DOUBLE; break;
+			default: 	*v = NC_FILL_FLOAT;
+			}
+		}
+
 	if( options.debug )
-		fprintf( stderr, "setting fillvalue to default=%g\n",
+		fprintf( stderr, "setting fillvalue to default for var type=%g\n",
 			*v );
 }
 

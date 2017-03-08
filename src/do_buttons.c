@@ -84,6 +84,9 @@ do_restart( int modifier )
 do_rewind( int modifier )
 {
 	unsigned long delay_millisec;
+	size_t	size;
+	double	d_delta;
+	int	i_delta;
 
 	cur_button = BUTTON_REWIND;
 
@@ -92,7 +95,13 @@ do_rewind( int modifier )
 	in_timer_clear();
 
 	if( modifier == MOD_2 ) {
-		change_view( -10, FRAMES );
+		size = view_current_nt();
+		d_delta = (double)size / 1000.0;
+		if( d_delta < 10.0 )
+			i_delta = -10;
+		else
+			i_delta = -d_delta;
+		change_view( i_delta, FRAMES );
 		in_timer_set( (XtTimerCallbackProc)do_rewind, (XtPointer)(MOD_2), delay_millisec );
 		}
 	else
@@ -171,6 +180,9 @@ do_forward( int modifier )
 do_fastforward( int modifier )
 {
 	unsigned long	delay_millisec;
+	size_t	size;
+	double	d_delta;
+	int	i_delta;
 
 	cur_button = BUTTON_FASTFORWARD;
 
@@ -179,7 +191,13 @@ do_fastforward( int modifier )
 	delay_millisec = (long)(DELAY_DELTA * options.frame_delay) + DELAY_OFFSET;
 
 	if( modifier == MOD_2 ) {
-		if( change_view( 10, FRAMES ) == 0 )
+		size = view_current_nt();
+		d_delta = (double)size / 1000.0;
+		if( d_delta < 10.0 )
+			i_delta = 10;
+		else
+			i_delta = d_delta;
+		if( change_view( i_delta, FRAMES ) == 0 )
 			in_timer_set( (XtTimerCallbackProc)do_fastforward, (XtPointer)(MOD_2), delay_millisec );
 		}
 	else

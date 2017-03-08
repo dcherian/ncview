@@ -1,10 +1,14 @@
 /*
     The CalCalcs routines, a set of C-language routines to perform
-    calendar calculations.
+    calendar calculations with an emphasis on calendars used by 
+    global climate models, including "noleap", "365_day", "360_day",
+    "proleptic_gregorian", and "standard" calendars. Support is 
+    also provided for what I call "year 0" calendars, which is to
+    say calendars that have a valid year 0, unlike the real calendar.
 
-    Version 1.0, released 7 January 2010
+    Version 1.2, released 8 June 2014
 
-    Copyright (C) 2010 David W. Pierce, dpierce@ucsd.edu
+    Copyright (C) 2010-2014, David W. Pierce, dpierce@ucsd.edu
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -321,7 +325,7 @@ calcalcs_cal *ccs_init_calendar( const char *calname )
 	else
 		{
 		fprintf( stderr, "Error, ccs_init_calendar called with unknown calendar name: %s\n", calname );
-		exit(-1);
+		return( NULL );
 		}
 
 	return( retval );

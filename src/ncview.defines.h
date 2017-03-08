@@ -31,8 +31,8 @@
 #include <udunits2.h>
 #endif
 
-#define PROGRAM_ID		"Ncview 2.1.5 David W. Pierce  18 Mar 2015"
-#define PROGRAM_VERSION_STRING	"2.1.5"
+#define PROGRAM_ID		"Ncview 2.1.7 David W. Pierce  29 March 2016"
+#define PROGRAM_VERSION_STRING	"2.1.7"
 #define APP_RES_VERSION 	1.93
 
 #ifndef TRUE
@@ -516,6 +516,7 @@ typedef struct {
 		listsel_max,	/* if # of vars is more than this, auto switch from VARSEL_LIST to VARSEL_MENU */
 		color_by_ndims,	/* if 1, then button is color coded by # of effective dims */
 		beep_on_restart,
+		stop_on_restart,
 		auto_overlay,	/* if 1, then tries to figure out if coastlines should automatically be added */
 		blowup,
 		maxsize_pct,	/* -1 if a width/height pair specified instead */

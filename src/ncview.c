@@ -218,6 +218,9 @@ parse_options( int argc, char *argv[] )
 			else if( strncmp( argv[i], "-beep", 5 ) == 0 )
 				options.beep_on_restart = TRUE;
 
+			else if( strncmp( argv[i], "-pause_on_restart", 17 ) == 0 )
+				options.stop_on_restart = TRUE;
+
 			else if( strncmp( argv[i], "-fra", 4 ) == 0 )
 				options.dump_frames = TRUE;
 
@@ -370,6 +373,7 @@ initialize_misc()
 	options.show_sel	 = FALSE;
 	options.want_extra_info  = FALSE;
 	options.beep_on_restart  = FALSE;
+	options.stop_on_restart  = FALSE;
 	options.small  		 = FALSE;
 	options.blowup_type      = DEFAULT_BLOWUP_TYPE;
 	options.save_frames      = DEFAULT_SAVEFRAMES;
@@ -789,6 +793,7 @@ fprintf( stderr, "	-calendar: Specify time calendar to use, overriding value in 
 fprintf( stderr, "	-private: Use a private colormap.\n" );
 fprintf( stderr, "	-debug: Print lots of debugging info.\n" );
 fprintf( stderr, "	-beep: 	Ring the bell when the movie restarts at frame zero.\n" );
+fprintf( stderr, "	-pause_on_restart: Pause playback when the movie restarts at frame zero.\n" );
 fprintf( stderr, "	-extra: Put some extra information on the display window.\n" );
 fprintf( stderr, "	-mtitle: My title to use on the display window.\n" );
 fprintf( stderr, "	-noautoflip: Do not automatically flip image, even\n" );

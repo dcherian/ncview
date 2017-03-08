@@ -241,6 +241,11 @@ void udu_fmt_time( char *temp_string, size_t temp_string_len, double new_dimval,
 		fprintf( stderr, "units: >%s<\n", dim->units );
 		exit( -1 );
 		}
+
+	if( debug ) {
+		fprintf( stderr, "udu_fmt_time: dimval=%lf units=%s calendar=%s utCalendar2_cal returns: year=%d month=%d day=%d hour=%d minute=%d second=%lf\n",
+			new_dimval, dim->units, dim->calendar, year, month, day, hour, minute, second );
+		}
 	
 	if( include_granularity ) {
 		switch( dim->tgran ) {

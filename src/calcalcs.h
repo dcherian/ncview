@@ -2,9 +2,9 @@
     The CalCalcs routines, a set of C-language routines to perform
     calendar calculations.
 
-    Version 1.0, released 7 January 2010
+    Version 1.2, released 16 June 2014
 
-    Copyright (C) 2010 David W. Pierce, dpierce@ucsd.edu
+    Copyright (C) 2010-2014 David W. Pierce, dpierce@ucsd.edu
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

@@ -3,9 +3,9 @@
     The CalCalcs routines, a set of C-language routines to perform
     calendar calculations.
 
-    Version 1.0, released 7 January 2010
+    Version 1.2, released 8 June 2014
 
-    Copyright (C) 2010 David W. Pierce, dpierce@ucsd.edu
+    Copyright (C) 2010-2014 David W. Pierce, dpierce@ucsd.edu
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* #define DEBUG */
+/* #define DEBUG  */
 
 #include <stdio.h>
 #include <unistd.h>
@@ -50,7 +50,7 @@ static ut_unit *udu_ref_date;
    in seconds, so, for example, 1.e-3 means round up to 1 second if the value is 0.999 seconds or greater,
    and 1.e-6 means round up to 1 second if the value is 0.999999 seconds or greater.
 */
-static double sec_rounding_value = 1.e-8;
+static double sec_rounding_value = 1.e-6;
 
 /* Internal to this file only */
 static void 	initialize( const char *ut_read_xml_arg );
@@ -273,11 +273,11 @@ fuckyou = (char *)ccs_err_str((int)ierr);
 	*second = tot_extra_seconds;
 
 	/* Handle the rouding issues */
-#ifdef DEBUG
-	fprintf( stderr, "utCalendar2_cal: handling rounding issues\n" );
-#endif
 	iorig  = *second;			/* Integer conversion */
 	iround = *second + sec_rounding_value;	
+#ifdef DEBUG
+	fprintf( stderr, "utCalendar2_cal: handling rounding issues; orig second=%lf  orig+rounding value:%lf\n", *second, *second + sec_rounding_value );
+#endif
 	if( iround > iorig ) {
 #ifdef DEBUG
 		printf( "rounding alg invoked, orig date: %04d-%02d-%02d %02d:%02d:%.20lf\n", *year, *month, *day, *hour, *minute, *second );
@@ -612,6 +612,26 @@ static void initialize( const char *ut_read_xml_arg )
 }
 
 /*========================================================================================
+ * We already have routine ccs_date2doy, so why do we need this one? It can be convenient
+ * to supply this functionality to Fortran, which does not have the ability to easily
+ * initialize or use calendars, and only identify them by a character-string name. So,
+ * provide an interface that gives the ccs_date2doy functionality given only a character
+ * string calendar name.
+ */
+int ccs_date2doy_calname( char *calendar_name, int year, int month, int day, int *doy )
+{
+	calcalcs_cal	*cal2use;
+
+	cal2use = getcal( calendar_name );
+	if( cal2use == NULL ) {
+		unknown_cal_emit_warning( calendar_name );
+		cal2use = getcal( "Standard" );
+		}
+
+	return( ccs_date2doy( cal2use, year, month, day, doy ));
+}
+
+/*========================================================================================
  * Returns NULL if the passed calendar name is both not found and not creatable
  */
 static calcalcs_cal *getcal( const char *name )
@@ -691,7 +711,7 @@ static int inferred_origin_year( const char *s )
 /* printf( "loc that string 'since' starts: %d\n", loc_since_start ); */
 
 	ifnbss = loc_since_start + 5;	/* ifnbss = "i first non blank since since" */
-	while( (ifnbss < sl) && isblank( *(s+ifnbss) ) && (*(s+ifnbss) != '\0'))
+	while( isblank( *(s+ifnbss) ) && (*(s+ifnbss) != '\0') && (ifnbss < sl))
 		ifnbss++;
 
 /* printf( "i first non blank since since:%d\n", ifnbss ); */
